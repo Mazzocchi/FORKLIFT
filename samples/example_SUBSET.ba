@@ -1,0 +1,9 @@
+qI
+a, qI -> q1
+b, qI -> q1
+a, q1 -> q1
+b, q1 -> q1
+a, q1 -> q2
+b, q1 -> q2
+b, q2 -> q2
+q2

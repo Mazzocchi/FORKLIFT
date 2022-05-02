@@ -1,0 +1,16 @@
+qI
+a, qI -> q1
+c, qI -> q1
+a, qI -> q2
+b, qI -> q2
+a, q1 -> qI
+c, q1 -> qI
+a, q1 -> q2
+b, q1 -> qF
+a, q2 -> qI
+b, q2 -> qI
+c, q2 -> qF
+a, qF -> qI
+c, qF -> q2
+b, qF -> qF
+qF

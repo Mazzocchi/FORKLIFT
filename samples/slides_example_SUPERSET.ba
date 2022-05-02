@@ -1,0 +1,8 @@
+pI
+a, pI -> pI
+b, pI -> pF
+c, pI -> pF
+a, pF -> pI
+b, pF -> pF
+c, pF -> pF
+pF
