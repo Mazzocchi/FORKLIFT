@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+message: "Please cite this work as below."
 preferred-citation:
   type: conference-paper
   authors:
@@ -14,7 +14,7 @@ preferred-citation:
     orcid: "https://orcid.org/0000-0001-6425-5369"
   title: "FORKLIFT: FORQ-based Language Inclusion Formal Testing"
 #  doi: ""
-#  journal: "34th International Conference on Computer Aided Verification, {CAV} 2022, August 7-10, 2022, The Technion, Haifa, Israel"
+  journal: "34th International Conference on Computer Aided Verification, {CAV} 2022, August 7-10, 2022, The Technion, Haifa, Israel, Proceedings"
 #  month: 7
 #  start: 1 # First page number
 #  end: 10 # Last page number
