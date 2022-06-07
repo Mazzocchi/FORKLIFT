@@ -10,8 +10,22 @@ authors:
 - family-names: "Mazzocchi"
   given-names: "Nicolas"
   orcid: "https://orcid.org/0000-0001-6425-5369"
-title: "FORKLIFT: FORQ-based Language Inclusion Formal Testing Latest"
+title: "FORKLIFT: FORQ-based Language Inclusion Formal Testing"
 version: 1.0
 doi: 10.5281/zenodo.6552870
 date-released: 2022-05-16
 url: "https://doi.org/10.5281/zenodo.6552870"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Doveri"
+    given-names: "Kyveli"
+    orcid: "https://orcid.org/0000-0001-9403-2860"
+  - family-names: "Ganty"
+    given-names: "Pierre"
+    orcid: "https://orcid.org/0000-0002-3625-6003"
+  - family-names: "Mazzocchi"
+    given-names: "Nicolas"
+    orcid: "https://orcid.org/0000-0001-6425-5369"
+  title: "FORKLIFT: FORQ-based Language Inclusion Formal Testing"
+  year: 2022
