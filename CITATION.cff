@@ -1,22 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-authors:
-- family-names: "Doveri"
-  given-names: "Kyveli"
-  orcid: "https://orcid.org/0000-0001-9403-2860"
-- family-names: "Ganty"
-  given-names: "Pierre"
-  orcid: "https://orcid.org/0000-0002-3625-6003"
-- family-names: "Mazzocchi"
-  given-names: "Nicolas"
-  orcid: "https://orcid.org/0000-0001-6425-5369"
-title: "FORKLIFT: FORQ-based Language Inclusion Formal Testing"
-version: 1.0
-doi: 10.5281/zenodo.6552870
-date-released: 2022-05-16
-url: "https://doi.org/10.5281/zenodo.6552870"
 preferred-citation:
-  type: article
+  type: inproceedings
   authors:
   - family-names: "Doveri"
     given-names: "Kyveli"
@@ -28,4 +13,11 @@ preferred-citation:
     given-names: "Nicolas"
     orcid: "https://orcid.org/0000-0001-6425-5369"
   title: "FORKLIFT: FORQ-based Language Inclusion Formal Testing"
+#  doi: ""
+#  journal: "34th International Conference on Computer Aided Verification, {CAV} 2022, August 7-10, 2022, The Technion, Haifa, Israel"
+#  month: 7
+#  start: 1 # First page number
+#  end: 10 # Last page number
+#  issue: 1
+#  volume: 1
   year: 2022
