@@ -2,7 +2,7 @@
 
 The program FORKLIFT is an inclusion checker for Büchi automata.
 It takes two automata as input, presented the format described here:
-    http://languageinclusion.org/doku.php?id=tools#the_ba_format
+    https://github.com/parof/bait#the-ba-format
 Let us call the first given automaton A and B the second one.
 Upon termination, FORKLIFT exit code is:
     0 if L(A) is subset of L(B)
