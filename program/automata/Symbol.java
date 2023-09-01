@@ -15,7 +15,7 @@ public final class Symbol {
 	// +++++++++++++++ Getters +++++++++++++++
 
 
-	public String toString() {return name;}
+    public String toString() {return "("+name+")";}
 	
 	
 	public int hashCode() {return 31 * id;}
