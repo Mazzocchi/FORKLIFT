@@ -1,5 +1,7 @@
 #!/usr/bin/awk -f
 #
+# Copyright (C), Pierre Ganty, IMDEA Software Institute
+#
 # This AWK script takes in input a file in HOAF format assuming it is a Buchi
 # automata with a state-based acceptance and, this is very important, it has
 # been preprocessed with the `--split-edges` transform of `autfilt` (one of the
@@ -43,7 +45,7 @@ BEGIN { idx=1; }
         AP=split(substr($1,2,length($1)-2), literals, "\&"); #first remove `[` and `]` then split into the array literals using & as separator
         bintodec=0;
         for(j=1; j<=AP; j++) # most significant digit first
-                bintodec=(bintodec*2) + (substr(literals[j], 1, 1) == "!" ? 0 : 1);
+                bintodec=(bintodec*2) + ( literals[j] ~ /^!/ ? 0 : 1); #  https://stackoverflow.com/a/31831937/5486404  advises against `substr(literals[j], 1, 1) == "!"`
         print bintodec","st"->"$2; # print the transition: "label,src->tgt"
 } 
 END { 
