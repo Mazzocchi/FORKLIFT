@@ -33,7 +33,7 @@ final class AutomatonParser {
 	AutomatonParser (Path file) throws Exception {
 		this.file = file;
 		
-		if (Files.exists(file) == false) throw new Exception("The file \"" + file + "\" does not exists");
+		if (Files.exists(file) == false) throw new Exception("The file \"" + file + "\" does not exist");
 		if (Files.isReadable(file) == false) throw new Exception("The file \"" + file + "\" cannot be opened with read access");
 		
 		try {
