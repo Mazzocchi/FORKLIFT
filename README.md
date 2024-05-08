@@ -28,23 +28,21 @@ checks whether `L(A) ⊆ L(B)` holds for the input Büchi automata `A` given by 
 
 #### OPTIONS #### 
 Insert options anywhere after `forklift.jar`.
-For intance, running
+For instance, running
 ```
 java -jar forklift.jar -t sub.ba -o sup.ba -v
 ```
 uses the options `optimization` (`-o`), `verbose` (`-v`) and `time` (`-t`).
-Use the option `-h` to know more:
+Use `-h` to know more about the options:
 ```
 java -jar forklift.jar -h
 ```
 
 ### EXAMPLES ###
 The folder `samples` contains examples of Büchi automata. 
-For intance, running
+For instance, running
 ```
 java -jar forklift.jar ./samples/example_SUPERSET.ba ./samples/example_SUBSET.ba
 ```
-checks the inclusion given in Fig.1 in our [CAV'22](https://arxiv.org/abs/2207.13549) paper.
+checks the inclusion given at Figure 1 in our [CAV'22](https://arxiv.org/abs/2207.13549) paper.
 In this case the inclusion does not hold and FORKLIFT provides the counterexample `u cycle {v}` to the inclusion.
-
-
