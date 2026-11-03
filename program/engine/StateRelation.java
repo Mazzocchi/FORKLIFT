@@ -1,39 +1,36 @@
 package engine;
 
 import java.util.*;
-import tuples.*;
 
 
-public final class StateRelation
-extends HashMap<Integer, SetOfStates>
-implements QuasiOrder<StateRelation>, Iterable<Pair<Integer, Integer>> {
+/** A relation on states of B, stored as one row (a set of states) per left element. **/
+public final class StateRelation implements QuasiOrder<StateRelation> {
+	private final SetOfStates[] rows;
 
-	public void add (int initB, int stateB) {
-		computeIfAbsent(initB, k -> new SetOfStates()).add(stateB);
+	public StateRelation (int size) {rows = new SetOfStates[size];}
+
+	public int size () {return rows.length;}
+	/** @return the row of initB, or null if empty **/
+	public SetOfStates get (int initB) {return rows[initB];}
+	public SetOfStates getOrCreate (int initB) {
+		if (rows[initB] == null) rows[initB] = new SetOfStates();
+		return rows[initB];
 	}
-	
-	public boolean contains (int initB, int stateB) {
-		SetOfStates set = get(initB);
-		return set != null && set.contains(stateB);
-	}
+	public void add (int initB, int stateB) {getOrCreate(initB).add(stateB);}
 
 	public boolean smaller_than (StateRelation rel) {
-		for (Map.Entry<Integer, SetOfStates> entry : entrySet()) {
-			SetOfStates other = rel.get(entry.getKey());
-			if (other == null || entry.getValue().smaller_than(other) == false) return false;
+		for (int i = 0; i < rows.length; i++) {
+			if (rows[i] == null || rows[i].isEmpty()) continue;
+			if (rel.rows[i] == null || rows[i].smaller_than(rel.rows[i]) == false) return false;
 		}
 		return true;
 	}
 
 	public String toString() {
-		StringJoiner outersj = new StringJoiner(";", "{", "}" );
-		for (Pair<Integer, Integer> pair : this)
-			outersj.add("(" + pair.first() + "," + pair.second() + ")");
-		return outersj.toString();
-	}
-
-
-	public Iterator<Pair<Integer, Integer>> iterator() {
-		return new StateRelationIterator(this);
+		StringJoiner sj = new StringJoiner(";", "{", "}");
+		for (int i = 0; i < rows.length; i++)
+			if (rows[i] != null)
+				for (int j = rows[i].nextState(0); j >= 0; j = rows[i].nextState(j + 1)) sj.add("(" + i + "," + j + ")");
+		return sj.toString();
 	}
 }

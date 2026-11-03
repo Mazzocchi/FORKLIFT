@@ -51,7 +51,7 @@ final class AutomatonParser {
 		// -- other lines define transitions and acceptance
 		line = readLine();
 		while (line != null) {
-			if (line.matches(".*->.*")) readEdges(line);
+			if (line.contains("->")) readEdges(line);
 			else readFinals(line);
 			line = readLine();
 		}
@@ -64,7 +64,7 @@ final class AutomatonParser {
 	/** handles the first line **/
 	private void readInitial(String line) throws Exception {
 		// -- if 'init' unspecified then take the first defined state  
-		if (line.matches(".*->.*")) initial = readEdges(line);
+		if (line.contains("->")) initial = readEdges(line);
 		else {
 			initial = line.strip();
 			states.add(initial);
@@ -75,9 +75,14 @@ final class AutomatonParser {
 	/** handles lines with the substring "->" **/
 	private String readEdges(String line) throws Exception {
 		// -- Transition: symbol, from -> to
-		String[] names = line.split(",|->");
-		
-		if (names.length != 3) throw abort("transition format");
+		// -- exactly one ',' followed by exactly one '->' (no regular expression: parsing speed)
+		int comma = line.indexOf(',');
+		int arrow = line.indexOf("->");
+		boolean wellFormed = comma >= 0 && comma < arrow
+				&& line.indexOf(',', comma + 1) < 0
+				&& line.indexOf("->", arrow + 2) < 0;
+		if (wellFormed == false) throw abort("transition format");
+		String[] names = {line.substring(0, comma), line.substring(comma + 1, arrow), line.substring(arrow + 2)};
 		for (int i = 0; i < names.length; i++)
 			names[i] = names[i].strip();
 		
@@ -93,7 +98,7 @@ final class AutomatonParser {
 		
 		// -- To
 		String to = names[2].strip();
-		if (to.length() < 1) abort("transition target state missing (" + to + ")");
+		if (to.length() < 1) throw abort("transition target state missing (" + to + ")");
 		states.add(to);
 		
 		transitions.add(new Triplet<>(from, symbol, to));

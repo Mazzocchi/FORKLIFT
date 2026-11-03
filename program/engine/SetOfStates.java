@@ -11,6 +11,7 @@ public final class SetOfStates implements QuasiOrder<SetOfStates>, Iterable<Inte
 
 	public void add (int state) {bits.set(state);}
 	public void addAll (SetOfStates set) {bits.or(set.bits);}
+	public void retainAll (SetOfStates set) {bits.and(set.bits);}
 	public boolean contains (int state) {return bits.get(state);}
 	public boolean isEmpty () {return bits.isEmpty();}
 	public int size () {return bits.cardinality();}

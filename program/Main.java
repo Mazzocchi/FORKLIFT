@@ -221,8 +221,9 @@ public class Main {
 	}
 	
 	private static boolean relevance_test (SetOfStates W, SetOfContexts V) {
-		for (SetOfStates set : V.getFirst().values())
-			if (set.smaller_than(W) == false) return false;
+		StateRelation first = V.getFirst();
+		for (int i = 0; i < first.size(); i++)
+			if (first.get(i) != null && first.get(i).smaller_than(W) == false) return false;
 		return true;
 	}	
 }
