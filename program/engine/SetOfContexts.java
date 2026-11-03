@@ -26,12 +26,12 @@ implements QuasiOrder<SetOfContexts>, Iterable<Pair<Pair<Integer, Integer>, Bool
 		return this.first.size() + this.second.size();
 	}
 	
-	public void add (Integer initB, Integer stateB, Boolean accept) {
+	public void add (int initB, int stateB, boolean accept) {
 		this.first.add(initB, stateB);
 		if (accept) this.second.add(initB, stateB);
 	}	
 	
-	public boolean contains (Integer initB, Integer stateB, Boolean accept) {
+	public boolean contains (int initB, int stateB, boolean accept) {
 		if (accept) return this.second.contains(initB, stateB);
 		return this.first.contains(initB, stateB);
 	}

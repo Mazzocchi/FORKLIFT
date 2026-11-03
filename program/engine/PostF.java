@@ -1,33 +1,31 @@
 package engine;
 
-import java.util.Set;
 import automata.*;
 import tuples.*;
 
 
 public final class PostF extends Post<SetOfContexts> {	
-	public PostF (Integer initA, SetOfStates initB, StateManager stateManager, SymbolManager symbolManager) { 
-		super(stateManager, symbolManager);
-		initialize(initA, initB); 
+	/** initA is a state of A, setB a set of states of B **/
+	public PostF (BuchiAutomaton A, BuchiAutomaton B, int initA, SetOfStates setB) {
+		super(A, B);
+		initialize(initA, setB);
 	}
 	
 	
-	protected void initialize(Integer initA, SetOfStates setB) {
-		for (int symbol : stateManager.getSymbols(initA)) {
-			SetOfStates posts = stateManager.getSuccessors(initA, symbol);
-			if (posts != null && !posts.isEmpty()) {
-				SetOfContexts contexts = new SetOfContexts();
-				for (Integer fromB : setB) {
-					SetOfStates succ = stateManager.getSuccessors(fromB, symbol);
-					if (succ != null) {
-						for (Integer toB : succ)
-							contexts.add(fromB, toB, stateManager.isFinal(fromB) || stateManager.isFinal(toB));
-					}
+	protected void initialize(int initA, SetOfStates setB) {
+		for (int symbol : A.getSymbols(initA)) {
+			SetOfContexts contexts = new SetOfContexts();
+			for (int fromB = setB.nextState(0); fromB >= 0; fromB = setB.nextState(fromB + 1)) {
+				SetOfStates succ = B.getSuccessors(fromB, symbol);
+				if (succ != null) {
+					for (int toB = succ.nextState(0); toB >= 0; toB = succ.nextState(toB + 1))
+						contexts.add(fromB, toB, B.isFinal(fromB) || B.isFinal(toB));
 				}
-				for (Integer toA : posts) { 
-					updates.add(toA, contexts, new Word(symbol));
-					content.add(toA, contexts, new Word(symbol));
-				}
+			}
+			SetOfStates postsA = A.getSuccessors(initA, symbol);
+			for (int toA = postsA.nextState(0); toA >= 0; toA = postsA.nextState(toA + 1)) { 
+				updates.add(toA, contexts, new Word(symbol));
+				content.add(toA, contexts, new Word(symbol));
 			}
 		}
 	}
@@ -36,22 +34,20 @@ public final class PostF extends Post<SetOfContexts> {
 	protected SetOfContexts post (SetOfContexts current, int symbol) {
 		SetOfContexts postB = new SetOfContexts();
 		for (Pair<Pair<Integer, Integer>, Boolean> pair : current) {
-			Integer initB = pair.first().first();
-			Integer fromB = pair.first().second();
-			Boolean accept = pair.second();
-			SetOfStates succ = stateManager.getSuccessors(fromB, symbol);
+			int initB = pair.first().first();
+			int fromB = pair.first().second();
+			boolean accept = pair.second();
+			SetOfStates succ = B.getSuccessors(fromB, symbol);
 			if (succ != null) {
-				for (Integer toB : succ)
-					postB.add(initB, toB, accept || stateManager.isFinal(toB));
+				for (int toB = succ.nextState(0); toB >= 0; toB = succ.nextState(toB + 1))
+					postB.add(initB, toB, accept || B.isFinal(toB));
 			}
 		}
 		return postB;
 	}
 	
 	
-	protected boolean addExtreme(Integer stateA, SetOfContexts postB, Word word) {
+	protected boolean addExtreme(int stateA, SetOfContexts postB, Word word) {
 		return content.addIfMin(stateA, postB, word);
 	}
-	
 }
-

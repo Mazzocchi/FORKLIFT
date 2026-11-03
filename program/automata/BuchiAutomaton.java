@@ -6,106 +6,76 @@ import engine.*;
 import tuples.*;
 
 
+/**
+ * A Buchi automaton whose states are integers (see StateManager) and whose
+ * symbols are integers (see SymbolManager, shared with the other automaton).
+ **/
 public class BuchiAutomaton {
-	private final int alphabetSize;
-	private final SetOfStates states;
+	private final SymbolManager symbols;
+	private final StateManager states;
 	private final int init;
-	private final SetOfStates finals;
-	private final StateManager stateManager;
-	private final SymbolManager symbolManager;
-	// -- Transitions are stored through StateManager
+	private final SetOfStates finals = new SetOfStates();
 
 
 	// +++++++++++++++ Getters +++++++++++++++
-	public int getAlphabetSize() {return alphabetSize;}
-	public SetOfStates getStates() {return states;}
-	public int getInitialState() {return init;}
+	public SymbolManager getSymbolManager() {return symbols;}
+	public StateManager getStateManager() {return states;}
 	public SetOfStates getFinalStates() {return finals;}
-	public StateManager getStateManager() {return stateManager;}
-	public SymbolManager getSymbolManager() {return symbolManager;}
-	
-	// For backward compatibility with old code that passes Set<Symbol>
-	public Set<Symbol> getAlphabet() {
-		Set<Symbol> alphabet = new HashSet<>();
-		for (int i = 0; i < alphabetSize; i++) {
-			alphabet.add(new Symbol(i));
-		}
-		return alphabet;
-	}
-	// +++++++++++++ Getters +++++++++++++
+	public int getInitialState() {return init;}
+	public int[] getSymbols(int state) {return states.getSymbols(state);}
+	public SetOfStates getSuccessors(int state, int symbol) {return states.getSuccessors(state, symbol);}
+	public boolean isFinal(int state) {return states.isFinal(state);}
+	public String getName(int state) {return states.getName(state);}
+	public String toString(SetOfStates set) {return set.toString(states::getName);}
+	public String toString(Word word) {return symbols.toString(word);}
+	// +++++++++++++++ Getters +++++++++++++++
 
 
 
-	public BuchiAutomaton(Path file, final Set<Symbol> stating_alphabet) throws Exception {
-		this(file, stating_alphabet, null);
-	}
-	
-	public BuchiAutomaton(Path file, final Set<Symbol> stating_alphabet, SymbolManager sharedSymbolManager) throws Exception {
+	/** symbols are registered in (and possibly added to) the given SymbolManager **/
+	public BuchiAutomaton(Path file, SymbolManager symbols) throws Exception {
 		AutomatonParser parser = new AutomatonParser(file);
+		this.symbols = symbols;
 
-		// -- Symbols: use shared SymbolManager if provided
-		symbolManager = (sharedSymbolManager != null) ? sharedSymbolManager : new SymbolManager();
-		
-		Map<String, Integer> symbols_register = new HashMap<>();
-		
-		// First, register symbols from stating_alphabet
-		for (Symbol a : stating_alphabet) {
-			int id = symbolManager.addSymbol(a.getName());
-			symbols_register.put(a.getName(), id);
-		}
-		
-		// Then register symbols from the file
-		for (String name : parser.getAlphabet()) {
-			if (symbols_register.containsKey(name) == false) {
-				int id = symbolManager.addSymbol(name);
-				symbols_register.put(name, id);
-			}
-		}
-		
-		alphabetSize = symbolManager.size();
-		
-		// Create StateManager for this automaton
-		stateManager = new StateManager(alphabetSize);
+		// -- Symbols
+		for (String name : parser.getAlphabet())
+			symbols.getOrAdd(name);
+		states = new StateManager(symbols.size());
 
 		// -- States
-		Map<String, Integer> states_register = new HashMap<>();
-		states = new SetOfStates();
-		finals = new SetOfStates();
-		
+		Map<String,Integer> states_register = new HashMap<>();
 		for (String name : parser.getStates()) {
-			boolean isFinal = parser.getFinals().contains(name);
-			int stateId = stateManager.addState(name, isFinal);
-			states_register.put(name, stateId);
-			states.add(stateId);
-			if (isFinal) finals.add(stateId);
+			boolean is_final = parser.getFinals().contains(name);
+			int q = states.addState(name, is_final);
+			if (is_final) finals.add(q);
+			states_register.put(name, q);
 		}
 		init = states_register.get(parser.getInitial());
 
 		// -- Edges
 		for(Triplet<String,String,String> t : parser.getTransitions()) {
 			int from = states_register.get(t.first());
-			int symbolId = symbols_register.get(t.second());
+			int symbol = symbols.getOrAdd(t.second());
 			int to = states_register.get(t.third());
-			stateManager.addSuccessor(from, symbolId, to);
+			states.addSuccessor(from, symbol, to);
 		}
 	}
 
 
 	public String toString() {
 		StringBuilder s = new StringBuilder("Automaton:");
-		s.append("\n  States: ").append(states);
-		s.append("\n  Initial: ").append(stateManager.toString(init));
-		s.append("\n  Finals: ").append(finals);
+		SetOfStates all = new SetOfStates();
+		for (int q = 0; q < states.size(); q++) all.add(q);
+		s.append("\n  States: ").append(toString(all));
+		s.append("\n  Initial: ").append(getName(init));
+		s.append("\n  Finals: ").append(toString(finals));
 		s.append("\n  Transitions:\n");
-		for (Integer stateId : states) {
-			for (int symbolId = 0; symbolId < alphabetSize; symbolId++) {
-				SetOfStates succ = stateManager.getSuccessors(stateId, symbolId);
-				if (succ != null && !succ.isEmpty()) {
-					s.append("    ").append(stateManager.toString(stateId));
-					s.append(", ").append(symbolManager.toString(symbolId));
-					s.append(" -> ").append(succ.toString());
-					s.append("\n");
-				}
+		for (int q = 0; q < states.size(); q++) {
+			for (int symbol : getSymbols(q)) {
+				s.append("    ").append(getName(q));
+				s.append(", (").append(symbols.getName(symbol)).append(')');
+				s.append(" -> ").append(toString(getSuccessors(q, symbol)));
+				s.append("\n");
 			}
 		}
 		return s.toString();
@@ -116,7 +86,7 @@ public class BuchiAutomaton {
 		Set<Triplet<Integer, Integer, Boolean>> S = new HashSet<>();
 		Set<Pair<Integer, Integer>> P = new HashSet<>();
 		
-		for (Integer start : U) {
+		for (int start = U.nextState(0); start >= 0; start = U.nextState(start + 1)) {
 			S.clear(); P.clear();
 			if (reachable_final_product(start, 0, period, S, P)) return true;
 		}
@@ -127,15 +97,15 @@ public class BuchiAutomaton {
 		S.add(new Triplet<>(from, i, false));
 		P.add(new Pair<>(from, i));
 
-		SetOfStates posts = stateManager.getSuccessors(from, period.getIndex(i));
+		SetOfStates posts = getSuccessors(from, period.getIndex(i));
 		if (posts != null) {
-			for (Integer to : posts) {
-				int ii = (i+1 == period.getLength())?0:i+1;				
+			int ii = (i+1 == period.getLength())?0:i+1;
+			for (int to = posts.nextState(0); to >= 0; to = posts.nextState(to + 1)) {
 				if (S.contains(new Triplet<>(to, ii, false)) == false) {
 					if (reachable_final_product(to, ii, period, S, P)) return true;
 				}
 			
-				if (stateManager.isFinal(to)) {	
+				if (isFinal(to)) {	
 					if (P.contains(new Pair<>(to, ii))) return true;
 					if (S.contains(new Triplet<>(to, ii, true)) == false) {
 						if (iterable_final_product(to, ii, period, S, P)) return true;
@@ -144,8 +114,6 @@ public class BuchiAutomaton {
 			}
 		}
 
-		
-
 		P.remove(new Pair<>(from, i));
 		return false;
 	}
@@ -153,10 +121,10 @@ public class BuchiAutomaton {
 	private boolean iterable_final_product (int from, int i, Word period, Set<Triplet<Integer, Integer, Boolean>> S, Set<Pair<Integer, Integer>> P) {
 		S.add(new Triplet<>(from, i, true));
 		
-		SetOfStates posts = stateManager.getSuccessors(from, period.getIndex(i));
+		SetOfStates posts = getSuccessors(from, period.getIndex(i));
 		if (posts != null) {
-			for (Integer to : posts) {
-				int ii = (i+1 == period.getLength())?0:i+1;
+			int ii = (i+1 == period.getLength())?0:i+1;
+			for (int to = posts.nextState(0); to >= 0; to = posts.nextState(to + 1)) {
 				if (P.contains(new Pair<>(to, ii))) return true;
 				if (S.contains(new Triplet<>(to, ii, true)) == false) { 
 					if (iterable_final_product(to, ii, period, S, P)) return true;
@@ -165,10 +133,4 @@ public class BuchiAutomaton {
 		}
 		return false;
 	}
-
-	
 }
-
-
-
-

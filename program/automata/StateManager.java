@@ -1,102 +1,61 @@
 package automata;
 
-import engine.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import engine.SetOfStates;
+
 
 /**
- * Manager for state ID to metadata mapping.
- * Each automaton has its own StateManager instance.
- * Provides O(1) lookup from int ID to state properties.
- */
-public class StateManager {
-	private final List<String> stateNames = new ArrayList<>();
-	private final List<Boolean> stateFinals = new ArrayList<>();
-	private final List<SetOfStates[]> stateSuccessors = new ArrayList<>();
+ * Storage of the states of one automaton. States are the integers 0, ..., size()-1.
+ * For every state it records its name, whether it is final, and its successors
+ * per symbol (an array indexed by symbol identifiers).
+ **/
+public final class StateManager {
+	private static final int[] NO_SYMBOLS = new int[0];
+
+	private final List<String> names = new ArrayList<>();
+	private final BitSet finals = new BitSet();
+	private final List<SetOfStates[]> successors = new ArrayList<>();
+	private final List<int[]> symbols = new ArrayList<>();	// symbols with a non-empty successor set
 	private final int alphabetSize;
-	
-	public StateManager(int alphabetSize) {
-		this.alphabetSize = alphabetSize;
-	}
-	
-	/**
-	 * Add a new state and return its ID.
-	 */
-	public int addState(String name, boolean isFinal) {
-		int id = stateNames.size();
-		stateNames.add(name);
-		stateFinals.add(isFinal);
-		stateSuccessors.add(new SetOfStates[alphabetSize]);
+
+
+	public StateManager (int alphabetSize) {this.alphabetSize = alphabetSize;}
+
+
+	/** @return the identifier of the new state **/
+	public int addState (String name, boolean isFinal) {
+		int id = names.size();
+		names.add(name);
+		if (isFinal) finals.set(id);
+		successors.add(new SetOfStates[alphabetSize]);
+		symbols.add(NO_SYMBOLS);
 		return id;
 	}
-	
-	/**
-	 * Get the name for a state ID.
-	 */
-	public String getName(int stateId) {
-		return stateNames.get(stateId);
-	}
-	
-	/**
-	 * Check if a state is final.
-	 */
-	public boolean isFinal(int stateId) {
-		return stateFinals.get(stateId);
-	}
-	
-	/**
-	 * Get successors for a state and symbol.
-	 */
-	public SetOfStates getSuccessors(int stateId, int symbolId) {
-		SetOfStates[] succ = stateSuccessors.get(stateId);
-		if (symbolId < 0 || symbolId >= succ.length) return null;
-		return succ[symbolId];
-	}
-	
-	/**
-	 * Add a successor for a state and symbol.
-	 */
-	public void addSuccessor(int fromStateId, int symbolId, int toStateId) {
-		SetOfStates[] succ = stateSuccessors.get(fromStateId);
-		if (succ[symbolId] == null) {
-			SetOfStates singleton = new SetOfStates();
-			singleton.add(toStateId);
-			succ[symbolId] = singleton;
-		} else {
-			succ[symbolId].add(toStateId);
+
+
+	public void addSuccessor (int from, int symbol, int to) {
+		SetOfStates[] succ = successors.get(from);
+		if (succ[symbol] == null) {
+			succ[symbol] = new SetOfStates();
+			int[] old = symbols.get(from);
+			int[] extended = Arrays.copyOf(old, old.length + 1);
+			extended[old.length] = symbol;
+			symbols.set(from, extended);
 		}
+		succ[symbol].add(to);
 	}
-	
-	/**
-	 * Get the number of states registered.
-	 */
-	public int size() {
-		return stateNames.size();
-	}
-	
-	/**
-	 * Get the alphabet size.
-	 */
-	public int getAlphabetSize() {
-		return alphabetSize;
-	}
-	
-	/**
-	 * Get a string representation of a state ID.
-	 */
-	public String toString(int stateId) {
-		return getName(stateId);
-	}
-	
-	/**
-	 * Get the set of symbol IDs for which a state has successors.
-	 */
-	public java.util.Set<Integer> getSymbols(int stateId) {
-		java.util.Set<Integer> symbols = new java.util.HashSet<>();
-		SetOfStates[] succ = stateSuccessors.get(stateId);
-		for (int i = 0; i < succ.length; i++) {
-			if (succ[i] != null) symbols.add(i);
-		}
-		return symbols;
+
+
+	public int size () {return names.size();}
+	public String getName (int state) {return names.get(state);}
+	public boolean isFinal (int state) {return finals.get(state);}
+
+	/** @return the symbols labelling an outgoing transition of the state (do not modify) **/
+	public int[] getSymbols (int state) {return symbols.get(state);}
+
+	/** @return the successors of the state by the symbol, or null if there are none **/
+	public SetOfStates getSuccessors (int state, int symbol) {
+		SetOfStates[] succ = successors.get(state);
+		return (symbol < succ.length) ? succ[symbol] : null;
 	}
 }

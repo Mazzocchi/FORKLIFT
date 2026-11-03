@@ -1,6 +1,7 @@
 package automata;
 
 
+/** A finite word, given as an array of symbol identifiers (see SymbolManager). **/
 public record Word(int[] array, int length) {
 	
 	public Word () {
@@ -28,10 +29,11 @@ public record Word(int[] array, int length) {
 	}
  	
 
+	/** Without a SymbolManager only identifiers can be printed; see SymbolManager.toString(Word). **/
 	public String toString() {
-		String string = "";
+		StringBuilder s = new StringBuilder();
 		for (int i = 0; i < length; i++)
-			string = string + "(SYM_" + array[i] + ")";
-		return string;
+			s.append('(').append(array[i]).append(')');
+		return s.toString();
 	}
 }

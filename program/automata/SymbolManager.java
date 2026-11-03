@@ -1,50 +1,35 @@
 package automata;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 
 /**
- * Manager for symbol name to ID mapping.
- * Can be shared across automata to ensure consistent symbol IDs.
- * Provides O(1) lookup from int ID to string name.
- */
-public class SymbolManager {
-	private final List<String> symbolNames = new ArrayList<>();
-	
-	/**
-	 * Add a new symbol name and return its ID.
-	 * If the name already exists, returns the existing ID.
-	 */
-	public int addSymbol(String name) {
-		// Check if already exists
-		for (int i = 0; i < symbolNames.size(); i++) {
-			if (symbolNames.get(i).equals(name)) {
-				return i;
-			}
-		}
-		// Add new symbol
-		symbolNames.add(name);
-		return symbolNames.size() - 1;
+ * Bijection between symbol names and integer identifiers 0, 1, 2, ...
+ * A single instance is shared by the two automata of an inclusion query,
+ * so that equal names receive equal identifiers.
+ **/
+public final class SymbolManager {
+	private final Map<String, Integer> ids = new HashMap<>();
+	private final List<String> names = new ArrayList<>();
+
+
+	/** @return the identifier of the symbol, registering it if it is new **/
+	public int getOrAdd (String name) {
+		Integer id = ids.get(name);
+		if (id != null) return id;
+		ids.put(name, names.size());
+		names.add(name);
+		return names.size() - 1;
 	}
-	
-	/**
-	 * Get the name for a symbol ID.
-	 */
-	public String getName(int symbolId) {
-		return symbolNames.get(symbolId);
-	}
-	
-	/**
-	 * Get the number of symbols registered.
-	 */
-	public int size() {
-		return symbolNames.size();
-	}
-	
-	/**
-	 * Get a string representation of a symbol ID.
-	 */
-	public String toString(int symbolId) {
-		return "(" + getName(symbolId) + ")";
+
+	public String getName (int symbol) {return names.get(symbol);}
+	public int size () {return names.size();}
+
+
+	public String toString (Word word) {
+		StringBuilder s = new StringBuilder();
+		for (int i = 0; i < word.getLength(); i++)
+			s.append('(').append(getName(word.getIndex(i))).append(')');
+		return s.toString();
 	}
 }
