@@ -169,14 +169,14 @@ public class Main {
 		int membership_counter=0;
 		int call_V = 0;
 		for (int s : A.getFinalStates()) {final_counter++;
-			if (flag_v) System.out.println("  FINAL STATE '"+A.getName(s)+"' ("+final_counter+"/"+A.getFinalStates().size()+")");
-			
+			if (flag_v) System.out.println("  FINAL STATE ("+final_counter+"/"+A.getFinalStates().size()+") '"+A.getName(s)+"'");
+		 	
 			int max_counter=0;
 			for (Pair<SetOfStates, Word> pairW : postIrev.getSetOfT(s)) {call_V++;max_counter++;
 				SetOfStates W = pairW.first();
 				Word word_of_W = pairW.second();
 
-				if (flag_v) System.out.println("    considering MAX prefix '"+A.toString(word_of_W)+"' ("+max_counter+"/"+postIrev.getSetOfT(s).size()+")");
+				if (flag_v) System.out.println("    considering MAX prefix ("+max_counter+"/"+postIrev.getSetOfT(s).size()+") '"+A.toString(word_of_W)+"'");
 
 				// -- the MIN prefixes U with U ⊑ W do not depend on the period: select them once
 				List<Pair<SetOfStates, Word>> prefixes_U = new ArrayList<>();
@@ -195,7 +195,7 @@ public class Main {
 					SetOfContexts V = pairV.first();
 					Word word_of_V = pairV.second();
 					
-					if (flag_v) System.out.println("    considering period '"+A.toString(word_of_V)+"' ("+period_counter+"/"+postF.getSetOfT(s).size()+")");
+					if (flag_v) System.out.println("    considering period ("+period_counter+"/"+postF.getSetOfT(s).size()+") '"+A.toString(word_of_V)+"'");
 	
 					// start relevant
 					if (flag_o) { if (relevance_test(W, V) == false) continue;}
