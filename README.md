@@ -14,7 +14,7 @@ Upon termination, FORKLIFT returns one of the following value:
 
 ### COMPILATION ###
 
-Run `make` to compile.
+Run `make` to compile (a JDK 17 or later is required).
 Running `make` in the root directory compiles the source code (using `javac`), then constructs the java archive (using `jar`), and finally prints the usage of FORKLIFT.
 
 
