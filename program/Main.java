@@ -179,6 +179,12 @@ public class Main {
 				Word word_of_W = pairW.second();
 
 				if (flag_v) System.out.println("    considering MAX prefix '"+A.toString(word_of_W)+"' ("+max_counter+"/"+postIrev.getSetOfT(s).size()+")");
+
+				// -- the MIN prefixes U with U ⊑ W do not depend on the period: select them once
+				List<Pair<SetOfStates, Word>> prefixes_U = new ArrayList<>();
+				for (Pair<SetOfStates, Word> pairU : postI.getSetOfT(s))
+					if (pairU.first().smaller_than(W)) prefixes_U.add(pairU);
+
 				if (flag_v) System.out.print("    PERIOD fix-point (" +call_V+ "): computing ..\r");
 				
 				int iter_V_local = 1;
@@ -196,21 +202,19 @@ public class Main {
 	
 					// start relevant
 					if (flag_o) { if (relevance_test(W, V) == false) continue;}
-						for (Pair<SetOfStates, Word> pairU : postI.getSetOfT(s)) {
+						for (Pair<SetOfStates, Word> pairU : prefixes_U) {membership_counter++;
 							SetOfStates U = pairU.first();
 							Word word_of_U = pairU.second();
 							
-							if (U.smaller_than(W) == true) {membership_counter++;
-								if (flag_v) System.out.println("      considering MIN prefix '"+A.toString(word_of_U)+"' smaller than the MAX prefix '"+A.toString(word_of_W)+"'");
-								if (flag_v) System.out.print("      MEMBERSHIP ("+membership_counter+"): computing of "+A.toString(word_of_U)+" cycle{"+A.toString(word_of_V)+"} ..\r");
-								boolean belongs = B.membership(U, word_of_V);
-								if (flag_v) System.out.println("      MEMBERSHIP ("+membership_counter+"): done                                                     ");
-								
-								if (belongs == false) {
-									witness = A.toString(word_of_U) + " cycle{" + A.toString(word_of_V) + "}";
-									if (flag_v) System.out.println("      >> ABORT counter-example found: "+witness); 
-									return false;
-								}
+							if (flag_v) System.out.println("      considering MIN prefix '"+A.toString(word_of_U)+"' smaller than the MAX prefix '"+A.toString(word_of_W)+"'");
+							if (flag_v) System.out.print("      MEMBERSHIP ("+membership_counter+"): computing of "+A.toString(word_of_U)+" cycle{"+A.toString(word_of_V)+"} ..\r");
+							boolean belongs = B.membership(U, word_of_V);
+							if (flag_v) System.out.println("      MEMBERSHIP ("+membership_counter+"): done                                                     ");
+							
+							if (belongs == false) {
+								witness = A.toString(word_of_U) + " cycle{" + A.toString(word_of_V) + "}";
+								if (flag_v) System.out.println("      >> ABORT counter-example found: "+witness); 
+								return false;
 							}
 						}
 					// end relevant
