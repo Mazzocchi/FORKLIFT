@@ -28,8 +28,8 @@ public final class SymbolManager {
 
 	public String toString (Word word) {
 		StringBuilder s = new StringBuilder();
-		for (int i = 0; i < word.getLength(); i++)
-			s.append('(').append(getName(word.getIndex(i))).append(')');
+		for (int symbol : word.toArray())
+			s.append('(').append(getName(symbol)).append(')');
 		return s.toString();
 	}
 }

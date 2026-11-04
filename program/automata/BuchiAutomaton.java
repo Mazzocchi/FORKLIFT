@@ -82,7 +82,8 @@ public class BuchiAutomaton {
 	}
 
 
-	public boolean membership (SetOfStates U, Word period) {
+	public boolean membership (SetOfStates U, Word word_of_period) {
+		int[] period = word_of_period.toArray();
 		Set<Triplet<Integer, Integer, Boolean>> S = new HashSet<>();
 		Set<Pair<Integer, Integer>> P = new HashSet<>();
 		
@@ -93,13 +94,13 @@ public class BuchiAutomaton {
 		return false;
 	}
 	
-	private boolean reachable_final_product (int from, int i, Word period, Set<Triplet<Integer, Integer, Boolean>> S, Set<Pair<Integer, Integer>> P) {
+	private boolean reachable_final_product (int from, int i, int[] period, Set<Triplet<Integer, Integer, Boolean>> S, Set<Pair<Integer, Integer>> P) {
 		S.add(new Triplet<>(from, i, false));
 		P.add(new Pair<>(from, i));
 
-		SetOfStates posts = getSuccessors(from, period.getIndex(i));
+		SetOfStates posts = getSuccessors(from, period[i]);
 		if (posts != null) {
-			int ii = (i+1 == period.getLength())?0:i+1;
+			int ii = (i+1 == period.length)?0:i+1;
 			for (int to = posts.nextState(0); to >= 0; to = posts.nextState(to + 1)) {
 				if (S.contains(new Triplet<>(to, ii, false)) == false) {
 					if (reachable_final_product(to, ii, period, S, P)) return true;
@@ -118,12 +119,12 @@ public class BuchiAutomaton {
 		return false;
 	}
 	
-	private boolean iterable_final_product (int from, int i, Word period, Set<Triplet<Integer, Integer, Boolean>> S, Set<Pair<Integer, Integer>> P) {
+	private boolean iterable_final_product (int from, int i, int[] period, Set<Triplet<Integer, Integer, Boolean>> S, Set<Pair<Integer, Integer>> P) {
 		S.add(new Triplet<>(from, i, true));
 		
-		SetOfStates posts = getSuccessors(from, period.getIndex(i));
+		SetOfStates posts = getSuccessors(from, period[i]);
 		if (posts != null) {
-			int ii = (i+1 == period.getLength())?0:i+1;
+			int ii = (i+1 == period.length)?0:i+1;
 			for (int to = posts.nextState(0); to >= 0; to = posts.nextState(to + 1)) {
 				if (P.contains(new Pair<>(to, ii))) return true;
 				if (S.contains(new Triplet<>(to, ii, true)) == false) { 
