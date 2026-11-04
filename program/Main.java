@@ -152,7 +152,6 @@ public class Main {
 		if (flag_v) System.out.println("\n¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨\nINCLUSION");
 		
 		
-		if (flag_v) System.out.print("  MAX prefixes fix-point: computing ..\r");
 		int iter_W = 1;
 		postIrev = new PostI(A, B, true);
 		while (postIrev.apply()) iter_W++;
@@ -160,7 +159,6 @@ public class Main {
 		
 		
 		
-		if (flag_v) System.out.print("  MIN prefixes fix-point: computing ..\r");
 		int iter_U = 1;
 		postI = new PostI(A, B, false);
 		while (postI.apply()) iter_U++;
@@ -185,7 +183,6 @@ public class Main {
 				for (Pair<SetOfStates, Word> pairU : postI.getSetOfT(s))
 					if (pairU.first().smaller_than(W)) prefixes_U.add(pairU);
 
-				if (flag_v) System.out.print("    PERIOD fix-point (" +call_V+ "): computing ..\r");
 				
 				int iter_V_local = 1;
 				PostF postF = new PostF(A, B, s, W);
@@ -207,9 +204,8 @@ public class Main {
 							Word word_of_U = pairU.second();
 							
 							if (flag_v) System.out.println("      considering MIN prefix '"+A.toString(word_of_U)+"' smaller than the MAX prefix '"+A.toString(word_of_W)+"'");
-							if (flag_v) System.out.print("      MEMBERSHIP ("+membership_counter+"): computing of "+A.toString(word_of_U)+" cycle{"+A.toString(word_of_V)+"} ..\r");
 							boolean belongs = B.membership(U, word_of_V);
-							if (flag_v) System.out.println("      MEMBERSHIP ("+membership_counter+"): done                                                     ");
+							if (flag_v) System.out.println("      MEMBERSHIP ("+membership_counter+"): "+A.toString(word_of_U)+" cycle{"+A.toString(word_of_V)+"} -> "+(belongs ? "belongs" : "does not belong"));
 							
 							if (belongs == false) {
 								witness = A.toString(word_of_U) + " cycle{" + A.toString(word_of_V) + "}";
