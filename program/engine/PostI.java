@@ -7,13 +7,14 @@ import automata.*;
 public final class PostI extends Post<SetOfStates> {
 	private final boolean reversed_inclusion;
 	
-	public PostI (State initA, State initB, boolean rev) {
-		initialize(initA, initB);
+	public PostI (BuchiAutomaton A, BuchiAutomaton B, boolean rev) {
+		super(A, B);
+		initialize(A.getInitialState(), B.getInitialState());
 		reversed_inclusion = rev;
 	}
 
 	
-	protected void initialize(State initA, State initB) {
+	protected void initialize(int initA, int initB) {
 		SetOfStates set_qI = new SetOfStates();
 		set_qI.add(initB);
 		updates.add(initA, set_qI, new Word());
@@ -21,20 +22,18 @@ public final class PostI extends Post<SetOfStates> {
 	}
 	
 	
-	protected SetOfStates post (SetOfStates current, Symbol symbol) {
+	protected SetOfStates post (SetOfStates current, int symbol) {
 		SetOfStates postB = new SetOfStates();
-		for (State fromB : current) {
-			if (fromB.getSuccessors(symbol) != null)
-				postB.addAll(fromB.getSuccessors(symbol));
+		for (int fromB = current.nextState(0); fromB >= 0; fromB = current.nextState(fromB + 1)) {
+			SetOfStates succ = B.getSuccessors(fromB, symbol);
+			if (succ != null) postB.addAll(succ);
 		}
 		return postB;
 	}
 	
 	
-	protected boolean addExtreme(State stateA, SetOfStates postB, Word word) {
+	protected boolean addExtreme(int stateA, SetOfStates postB, Word word) {
 		if (reversed_inclusion) return content.addIfMax(stateA, postB, word);
 		return content.addIfMin(stateA, postB, word);
 	}
 }
-
-

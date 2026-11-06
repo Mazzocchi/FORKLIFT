@@ -1,55 +1,36 @@
 package engine;
 
-import automata.*;
-import tuples.*;
 import java.util.*;
 
 
-public final class StateRelation
-extends HashMap<State, SetOfStates>
-implements QuasiOrder<StateRelation>, Iterable<Pair<State, State>> {
+/** A relation on states of B, stored as one row (a set of states) per left element. **/
+public final class StateRelation implements QuasiOrder<StateRelation> {
+	private final SetOfStates[] rows;
 
-	public void add (State initB, State stateB) {
-		Set<State> set = computeIfAbsent(initB, k -> new SetOfStates());
-		set.add(stateB);	
+	public StateRelation (int size) {rows = new SetOfStates[size];}
+
+	public int size () {return rows.length;}
+	/** @return the row of initB, or null if empty **/
+	public SetOfStates get (int initB) {return rows[initB];}
+	public SetOfStates getOrCreate (int initB) {
+		if (rows[initB] == null) rows[initB] = new SetOfStates();
+		return rows[initB];
 	}
-	
-	public boolean addAll (State initB, Collection<State> stateB) {
-		Set<State> set = computeIfAbsent(initB, k -> new SetOfStates());
-		return set.addAll(stateB);
-	}
-	
-	public boolean contains (State initB, State stateB) {
-		Set<State> set = get(initB);
-		if (set == null) return false;
-		return set.contains(stateB);
-	}
+	public void add (int initB, int stateB) {getOrCreate(initB).add(stateB);}
 
 	public boolean smaller_than (StateRelation rel) {
-		for (State fromB : keySet()) {
-			if (rel.get(fromB) == null) return false;
-			for (State state : get(fromB))
-				if (rel.get(fromB).contains(state) == false) return false;
+		for (int i = 0; i < rows.length; i++) {
+			if (rows[i] == null || rows[i].isEmpty()) continue;
+			if (rel.rows[i] == null || rows[i].smaller_than(rel.rows[i]) == false) return false;
 		}
 		return true;
 	}
 
 	public String toString() {
-		StringJoiner outersj = new StringJoiner(";", "{", "}" );
-		for (Pair<State, State> pair : this) {
-			StringJoiner sj = new StringJoiner(",", "(", ")" );
-			sj.add(pair.getFirst().toString());
-			sj.add(pair.getSecond().toString());
-			outersj.add(sj.toString());
-		}
-		return outersj.toString();
-	}
-
-
-	public Iterator<Pair<State, State>> iterator() {
-		return new StateRelationIterator(this);
+		StringJoiner sj = new StringJoiner(";", "{", "}");
+		for (int i = 0; i < rows.length; i++)
+			if (rows[i] != null)
+				for (int j = rows[i].nextState(0); j >= 0; j = rows[i].nextState(j + 1)) sj.add("(" + i + "," + j + ")");
+		return sj.toString();
 	}
 }
-
-	
-	

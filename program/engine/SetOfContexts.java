@@ -1,48 +1,30 @@
 package engine;
 
-import automata.*;
-import tuples.*;
 import java.util.*;
 
-public class SetOfContexts
-extends Pair<StateRelation, StateRelation>
-implements QuasiOrder<SetOfContexts>, Iterable<Pair<Pair<State, State>, Boolean>>{
-	
-	public SetOfContexts() {
-		super(new StateRelation(), new StateRelation());
+/** Pairs (initB, stateB) reachable on a word, and those reachable through a final state. **/
+public class SetOfContexts implements QuasiOrder<SetOfContexts> {
+	private final StateRelation first;
+	private final StateRelation second;	// subset of first
+
+	public SetOfContexts(int size) {
+		this.first = new StateRelation(size);
+		this.second = new StateRelation(size);
 	}
 	
-	public SetOfContexts(StateRelation fst, StateRelation snd) {
-		super(fst, snd);
-	}
+	public StateRelation getFirst() { return first; }
+	public StateRelation getSecond() { return second; }
 	
-	public int size() {
-		return this.getFirst().size() + this.getSecond().size();
-	}
-	
-	public void add (State initB, State stateB, Boolean accept) {
-		this.getFirst().add(initB, stateB);
-		if (accept) this.getSecond().add(initB, stateB);
+	public void add (int initB, int stateB, boolean accept) {
+		this.first.add(initB, stateB);
+		if (accept) this.second.add(initB, stateB);
 	}	
-	
-	public boolean contains (State initB, State stateB, Boolean accept) {
-		if (accept) return this.getSecond().contains(initB, stateB);
-		return this.getFirst().contains(initB, stateB);
-	}
 
 	public boolean smaller_than (SetOfContexts cxt) {
-		return getFirst().smaller_than(cxt.getFirst()) && getSecond().smaller_than(cxt.getSecond());
+		return first.smaller_than(cxt.first) && second.smaller_than(cxt.second);
 	}
 	
 	public String toString() {
-		StringJoiner joiner = new StringJoiner("... ", "<", ">" );
-		joiner.add(this.getFirst().toString());
-		joiner.add(this.getSecond().toString());
-		return joiner.toString();
-	}
-
-	
-	public Iterator<Pair<Pair<State, State>, Boolean>> iterator() {
-		return new ContextIterator(this);
+		return "<" + first + "... " + second + ">";
 	}
 }
